@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SensorController;
 use App\Http\Controllers\SensorHeartbeatController;
+use App\Http\Controllers\SensorRuleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,4 +23,5 @@ Route::prefix('sensors')->group(function () {
     Route::post('/heartbeat', [SensorHeartbeatController::class, 'heartbeat']);
     Route::patch('/update/{id}', [SensorController::class, 'edit']);
     Route::get('/uuid', [SensorController::class, 'get']);
+    Route::post('/update_rule', [SensorRuleController::class, 'update']);
 });

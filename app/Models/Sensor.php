@@ -15,6 +15,11 @@ class Sensor extends Authenticatable implements JWTSubject
         return $this->hasMany(SensorHeartbeat::class);
     }
 
+    public function SensorRule()
+    {
+        return $this->hasMany(SensorRule::class);
+    }
+
     // Rest omitted for brevity
 
     /**
