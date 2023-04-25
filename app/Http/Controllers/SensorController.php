@@ -11,14 +11,14 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class SensorController extends Controller
 {
     //
-    public function __construct()
-    {
-        $this->middleware('auth:sensors-api', ['except' => ['login', 'register']]);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth:sensors-api', ['except' => ['login', 'register', '']]);
+    // }
 
     public function register(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => ['required'], 
             'organization_id' => ['required'],
             'protected_subnet' => ['required'],
@@ -30,22 +30,22 @@ class SensorController extends Controller
         ]);
 
         try {
-            $data = new Sensor;
-            $data->name = $request->input('name');
-            $data->organization_id = $request->input('organization_id');
-            $data->protected_subnet = $request->input('protected_subnet');
-            $data->external_subnet = $request->input('external_subnet');
-            $data->mqtt_topic = $request->input('mqtt_topic');
-            $data->mqtt_ip = $request->input('mqtt_ip');
-            $data->mqtt_port = $request->input('mqtt_port');
-            $data->network_interface = $request->input('network_interface');
-            $data->uuid = Str::uuid();
-            $data->save();
+            $sensor = Sensor::create([
+                'name' => $validatedData['name'],
+                'organization_id' => $validatedData['organization_id'],
+                'protected_subnet' => $validatedData['protected_subnet'],
+                'external_subnet' => $validatedData['external_subnet'],
+                'mqtt_topic' => $validatedData['mqtt_topic'],
+                'mqtt_ip' => $validatedData['mqtt_ip'],
+                'mqtt_port' => $validatedData['mqtt_port'],
+                'network_interface' => $validatedData['network_interface'],
+                'uuid' => Str::uuid(),
+            ]);
 
             return response()->json([
                 'code ' => 201,
                 'message' => 'registered',
-                'data' => new SensorResource($data)
+                'data' => new SensorResource($sensor)
             ],201);
         } catch(\Exception $e) {
             return response()->json([
@@ -63,7 +63,6 @@ class SensorController extends Controller
 
             $credential = $request->input('uuid');
             $data = Sensor::where('uuid', $credential)->first();
-            // dd($data);
             $token = auth('sensors-api')->login($data);
 
             if(!$token ) {
@@ -81,8 +80,8 @@ class SensorController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $request->validate([
-            'name' => ['required'],
+        $validatedData = $request->validate([
+            'name' => ['required'], 
             'organization_id' => ['required'],
             'protected_subnet' => ['required'],
             'external_subnet' => ['required'],
@@ -93,26 +92,44 @@ class SensorController extends Controller
         ]);
 
         try {
-            $data = Sensor::find($id);
-            $data->name = $request->input('name');
-            $data->organization_id = $request->input('organization_id');
-            $data->protected_subnet = $request->input('protected_subnet');
-            $data->external_subnet = $request->input('external_subnet');
-            $data->mqtt_topic = $request->input('mqtt_topic');
-            $data->mqtt_ip = $request->input('mqtt_ip');
-            $data->mqtt_port = $request->input('mqtt_port');
-            $data->network_interface = $request->input('network_interface');
-            $data->save();
+            $sensor = Sensor::findOrfail($id);
+            $sensor->update([
+                'name' => $validatedData['name'] ?? $sensor->name,
+                'organization_id' => $validatedData['organization_id'] ?? $sensor->organization_id,
+                'protected_subnet' => $validatedData['protected_subnet'] ?? $sensor->protected_subnet,
+                'external_subnet' => $validatedData['external_subnet'] ?? $sensor->external_subnet,
+                'mqtt_topic' => $validatedData['mqtt_topic'] ?? $sensor->mqtt_topic,
+                'mqtt_ip' => $validatedData['mqtt_ip'] ?? $sensor->mqtt_ip,
+                'mqtt_port' => $validatedData['mqtt_port'] ?? $sensor->mqtt_port,
+                'network_interface' => $validatedData['network_interface'] ?? $sensor->network_interface,
+            ]);
 
             return response()->json([
                 'code ' => 201,
                 'message' => 'updated',
-                'data' => new SensorResource($data)
+                'data' => new SensorResource($sensor)
             ],201);
         } catch(\Exception $e) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'update failed',
+            ], 403);
+        }
+    }
+
+    public function delete($id) {
+        try {
+            $sensor = Sensor::findOrfail($id);
+            $sensor->delete();
+
+            return response()->json([
+                'code ' => 201,
+                'message' => 'deleted',
+            ],201);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'delete failed',
             ], 403);
         }
     }

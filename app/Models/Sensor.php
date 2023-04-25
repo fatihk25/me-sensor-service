@@ -10,6 +10,18 @@ class Sensor extends Authenticatable implements JWTSubject
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'organization_id',
+        'protected_subnet',
+        'external_subnet',
+        'mqtt_topic',
+        'mqtt_ip',
+        'mqtt_port',
+        'network_interface',
+        'uuid',
+    ];
+
     public function SensorHeartbeat()
     {
         return $this->hasMany(SensorHeartbeat::class);
