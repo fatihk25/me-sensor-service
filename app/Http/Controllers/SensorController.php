@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\SensorResource;
 use App\Models\Sensor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -15,6 +16,22 @@ class SensorController extends Controller
     // {
     //     $this->middleware('auth:sensors-api', ['except' => ['login', 'register', '']]);
     // }
+
+    public function detail($id) {
+        try {
+            $data = Sensor::where('id', $id)->first();
+            return response()->json([
+                'code ' => 201,
+                'message' => 'success',
+                'data' => $data
+            ],201);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ], 403);
+        }
+    }
 
     public function register(Request $request)
     {
@@ -64,6 +81,10 @@ class SensorController extends Controller
             $credential = $request->input('uuid');
             $data = Sensor::where('uuid', $credential)->first();
             $token = auth('sensors-api')->login($data);
+            $data = DB::table('sensors')
+                ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+                ->select('sensors.*', 'organizations.oinkcode')
+                ->where('organizations.id', $data->organization_id)->first();
 
             if(!$token ) {
                 return response()->json(['error' => 'Unauthorized'], 401);
@@ -146,7 +167,7 @@ class SensorController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('sensors-api')->factory()->getTTL() * 60,
+            'expires_in' => auth('sensors-api')->factory()->getTTL() * (60 * 24 * 7),
             'data' => $data
         ]);
     }
