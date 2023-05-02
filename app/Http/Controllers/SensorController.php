@@ -84,7 +84,8 @@ class SensorController extends Controller
             $data = DB::table('sensors')
                 ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
                 ->select('sensors.*', 'organizations.oinkcode')
-                ->where('organizations.id', $data->organization_id)->first();
+                ->where('organizations.id', $data->organization_id)
+                ->where('sensors.uuid', $credential)->first();
 
             if(!$token ) {
                 return response()->json(['error' => 'Unauthorized'], 401);
