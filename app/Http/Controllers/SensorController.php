@@ -112,6 +112,7 @@ class SensorController extends Controller
             'mqtt_ip' => ['string'],
             'mqtt_port' => ['string'],
             'network_interface' => ['string'],
+            'update_status' => ['string'],
         ]);
 
         try {
@@ -126,6 +127,9 @@ class SensorController extends Controller
                 'mqtt_port' => $validatedData['mqtt_port'] ?? $sensor->mqtt_port,
                 'network_interface' => $validatedData['network_interface'] ?? $sensor->network_interface,
             ]);
+
+            $sensor->update_status = "update on progress";
+            $sensor->save();
 
             return response()->json([
                 'code ' => 201,
