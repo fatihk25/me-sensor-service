@@ -14,7 +14,7 @@ class SensorController extends Controller
     //
     // public function __construct()
     // {
-    //     $this->middleware('auth:sensors-api', ['except' => ['login', 'register', '']]);
+        // $this->middleware('auth:sensors-api', ['only' => ['updateStatus']]);
     // }
 
     public function detail($id) {
@@ -104,15 +104,14 @@ class SensorController extends Controller
     public function edit(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'name' => ['required'], 
-            'organization_id' => ['required'],
-            'protected_subnet' => ['required'],
-            'external_subnet' => ['required'],
-            'mqtt_topic' => ['required'],
-            'mqtt_ip' => ['required'],
-            'mqtt_port' => ['required'],
-            'network_interface' => ['required'],
-            'update_status' => ['string']
+            'name' => ['string'], 
+            'organization_id' => ['string'],
+            'protected_subnet' => ['string'],
+            'external_subnet' => ['string'],
+            'mqtt_topic' => ['string'],
+            'mqtt_ip' => ['string'],
+            'mqtt_port' => ['string'],
+            'network_interface' => ['string'],
         ]);
 
         try {
@@ -125,8 +124,31 @@ class SensorController extends Controller
                 'mqtt_topic' => $validatedData['mqtt_topic'] ?? $sensor->mqtt_topic,
                 'mqtt_ip' => $validatedData['mqtt_ip'] ?? $sensor->mqtt_ip,
                 'mqtt_port' => $validatedData['mqtt_port'] ?? $sensor->mqtt_port,
-                'update_status' => $validatedData['update_status'] ?? "update on progress",
                 'network_interface' => $validatedData['network_interface'] ?? $sensor->network_interface,
+            ]);
+
+            return response()->json([
+                'code ' => 201,
+                'message' => 'updated',
+                'data' => new SensorResource($sensor)
+            ],201);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'update failed',
+            ], 403);
+        }
+    }
+
+    public function updateStatus(Request $request, $id) {
+        $validatedData = $request->validate([
+            'update_status' => ['string']
+        ]);
+
+        try {
+            $sensor = Sensor::findOrfail($id);
+            $sensor->update([
+                'update_status' => $validatedData['update_status'] ?? $sensor->update_status,
             ]);
 
             return response()->json([

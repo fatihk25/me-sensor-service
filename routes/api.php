@@ -26,4 +26,5 @@ Route::prefix('sensors')->group(function () {
     Route::post('/update_rule', [SensorRuleController::class, 'update']);
     Route::delete('delete/{id}', [SensorController::class, 'delete']);
     Route::get('/{id}', [SensorController::class, 'detail']);
+    Route::patch('/update_status/{id}', [SensorController::class, 'updateStatus']);
 });
