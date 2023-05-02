@@ -56,6 +56,7 @@ class SensorController extends Controller
                 'mqtt_ip' => $validatedData['mqtt_ip'],
                 'mqtt_port' => $validatedData['mqtt_port'],
                 'network_interface' => $validatedData['network_interface'],
+                'update_status' => "created",
                 'uuid' => Str::uuid(),
             ]);
 
@@ -86,7 +87,7 @@ class SensorController extends Controller
                 ->select('sensors.*', 'organizations.oinkcode')
                 ->where('organizations.id', $data->organization_id)
                 ->where('sensors.uuid', $credential)->first();
-
+            
             if(!$token ) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
@@ -111,6 +112,7 @@ class SensorController extends Controller
             'mqtt_ip' => ['required'],
             'mqtt_port' => ['required'],
             'network_interface' => ['required'],
+            'update_status' => ['string']
         ]);
 
         try {
@@ -123,6 +125,7 @@ class SensorController extends Controller
                 'mqtt_topic' => $validatedData['mqtt_topic'] ?? $sensor->mqtt_topic,
                 'mqtt_ip' => $validatedData['mqtt_ip'] ?? $sensor->mqtt_ip,
                 'mqtt_port' => $validatedData['mqtt_port'] ?? $sensor->mqtt_port,
+                'update_status' => $validatedData['update_status'] ?? "update on progress",
                 'network_interface' => $validatedData['network_interface'] ?? $sensor->network_interface,
             ]);
 
