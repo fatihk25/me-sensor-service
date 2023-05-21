@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sensor;
 use App\Models\SensorHeartbeat;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -24,26 +25,16 @@ class SensorHeartbeatController extends Controller
 
             $credential = $request->input('uuid');
             $sensor = Sensor::where('uuid', $credential)->first();
-            $data = SensorHeartbeat::where('sensor_id', $sensor->id)->first();
-            if(!$data) {
-                $data = new SensorHeartbeat();
-                $data->sensor_id = $sensor->id;
-                $data->last_seen = now();
-                $data->save();
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'OK',
-                    'data' => $data,
-                ],200);
-            } else {
-                $data->last_seen = now();
-                $data->save();
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'OK',
-                    'data' => $data,
-                ],200);
-            }
+            $data = SensorHeartbeat::create([
+                'sensor_id' => $sensor->id,
+                'last_seen' => Carbon::now()
+            ]);
+            $data = SensorHeartbeat::where('sensor_id', $sensor->id)->get();
+            return response()->json([
+                'code' => 201,
+                'message' => 'success',
+                'data' => $data
+            ],201);
         } catch(Exception $e) {
             return response()->json([
                 'code' => 500,

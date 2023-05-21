@@ -20,7 +20,7 @@ class Sensor extends Authenticatable implements JWTSubject
         'mqtt_port',
         'network_interface',
         'uuid',
-        'update_status'
+        'status'
     ];
 
     public function SensorHeartbeat()

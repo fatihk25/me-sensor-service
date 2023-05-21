@@ -23,8 +23,8 @@ Route::prefix('sensors')->group(function () {
     Route::post('/heartbeat', [SensorHeartbeatController::class, 'heartbeat']);
     Route::patch('/update/{id}', [SensorController::class, 'edit']);
     Route::get('/uuid', [SensorController::class, 'get']);
-    Route::post('/update_rule', [SensorRuleController::class, 'update']);
     Route::delete('delete/{id}', [SensorController::class, 'delete']);
     Route::get('/{id}', [SensorController::class, 'detail']);
     Route::patch('/update_status/{id}', [SensorController::class, 'updateStatus']);
+    Route::post('/update_rule/{id}', [SensorRuleController::class, 'upload']);
 });

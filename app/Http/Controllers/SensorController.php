@@ -12,10 +12,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class SensorController extends Controller
 {
     //
-    // public function __construct()
-    // {
-        // $this->middleware('auth:sensors-api', ['only' => ['updateStatus']]);
-    // }
+     public function __construct()
+    {
+        $this->middleware('auth:sensors-api', ['only' => ['updateStatus']]);
+    }
 
     public function detail($id) {
         try {
@@ -43,7 +43,7 @@ class SensorController extends Controller
             'mqtt_topic' => ['required'],
             'mqtt_ip' => ['required'],
             'mqtt_port' => ['required'],
-            'network_interface' => ['required'],
+            'network_interface' => ['required']
         ]);
 
         try {
@@ -56,7 +56,7 @@ class SensorController extends Controller
                 'mqtt_ip' => $validatedData['mqtt_ip'],
                 'mqtt_port' => $validatedData['mqtt_port'],
                 'network_interface' => $validatedData['network_interface'],
-                'update_status' => "created",
+                'status' => 'created',
                 'uuid' => Str::uuid(),
             ]);
 
@@ -105,18 +105,19 @@ class SensorController extends Controller
     {
         $validatedData = $request->validate([
             'name' => ['string'], 
-            'organization_id' => ['string'],
+            'organization_id' => ['integer'],
             'protected_subnet' => ['string'],
             'external_subnet' => ['string'],
             'mqtt_topic' => ['string'],
             'mqtt_ip' => ['string'],
             'mqtt_port' => ['string'],
             'network_interface' => ['string'],
-            'update_status' => ['string'],
+            'status' => ['string'],
         ]);
 
         try {
             $sensor = Sensor::findOrfail($id);
+
             $sensor->update([
                 'name' => $validatedData['name'] ?? $sensor->name,
                 'organization_id' => $validatedData['organization_id'] ?? $sensor->organization_id,
@@ -128,7 +129,7 @@ class SensorController extends Controller
                 'network_interface' => $validatedData['network_interface'] ?? $sensor->network_interface,
             ]);
 
-            $sensor->update_status = "update on progress";
+            $sensor->status = "update on progress";
             $sensor->save();
 
             return response()->json([
@@ -146,13 +147,13 @@ class SensorController extends Controller
 
     public function updateStatus(Request $request, $id) {
         $validatedData = $request->validate([
-            'update_status' => ['string']
+            'status' => ['string']
         ]);
 
         try {
             $sensor = Sensor::findOrfail($id);
             $sensor->update([
-                'update_status' => $validatedData['update_status'] ?? $sensor->update_status,
+                'status' => $validatedData['status'] ?? $sensor->status,
             ]);
 
             return response()->json([
@@ -171,11 +172,12 @@ class SensorController extends Controller
     public function delete($id) {
         try {
             $sensor = Sensor::findOrfail($id);
-            $sensor->delete();
+            $sensor->status = "deleted";
+            $sensor->save();
 
             return response()->json([
                 'code ' => 201,
-                'message' => 'deleted',
+                'message' => $sensor,
             ],201);
         } catch(\Exception $e) {
             return response()->json([

@@ -25,7 +25,7 @@ class SensorResource extends JsonResource
             'mqtt_port' => $this->mqtt_port,
             'network_interface' => $this->network_interface,
             'uuid' => $this->uuid,
-            'update_status' => $this->update_status,
+            'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

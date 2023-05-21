@@ -9,6 +9,11 @@ class SensorHeartbeat extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'sensor_id',
+        'last_seen'
+    ];
+
     public function sensor()
     {
         return $this->belongsTo(Sensor::class);
