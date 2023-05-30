@@ -17,23 +17,19 @@ class SensorRuleController extends Controller
     // }
 
     public function upload(Request $request, $id) {
-        // dd($request);
         $sensor = Sensor::find($id);
         if (!$sensor) {
             return response()->json(['error' => 'sensor not found'], 404);
         }
 
-        $content = $request->file('rules');
-        // dd(file_get_content($content));
-
-        if ($request->hasFile('rules')) {
-            $rulesFile = $request->file('rules');
+        if ($request->hasFile('file')) {
+            $rulesFile = $request->file('file');
             $extension = $rulesFile->getClientOriginalExtension();
             $filename = $sensor->uuid . '.' . $extension;
             $folderPath = 'sensor_rules/' . $sensor->uuid;
             $data = SensorRule::updateOrCreate(
                 ['sensor_uuid' => $sensor->uuid],
-                ['file' => $folderPath]
+                ['file' => $folderPath . '/' . $filename]
             );
 
             $rulesFile->storeAs($folderPath, $filename, 'public');
@@ -44,6 +40,6 @@ class SensorRuleController extends Controller
             ], 200);
         }
 
-        return response()->json(['error' => 'File not uploaded'], 400);
+        return response()->json(['error' => $request->all()], 400);
     }
 }
