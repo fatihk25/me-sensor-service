@@ -28,3 +28,6 @@ Route::prefix('sensors')->group(function () {
     Route::patch('/update_status/{id}', [SensorController::class, 'updateStatus']);
     Route::post('/update_rule/{id}', [SensorRuleController::class, 'upload']);
 });
+
+
+Route::get('test/{id}',[SensorController::class, 'getSensorCounts']);

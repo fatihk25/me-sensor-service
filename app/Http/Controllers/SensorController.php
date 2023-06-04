@@ -36,7 +36,7 @@ class SensorController extends Controller
     public function register(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => ['required'], 
+            'name' => ['required'],
             'organization_id' => ['required'],
             'protected_subnet' => ['required'],
             'external_subnet' => ['required'],
@@ -87,12 +87,12 @@ class SensorController extends Controller
                 ->select('sensors.*', 'organizations.oinkcode')
                 ->where('organizations.id', $data->organization_id)
                 ->where('sensors.uuid', $credential)->first();
-            
+
             if(!$token ) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
             return $this->respondWithToken($token, $data);
-            
+
         }catch(\Exception $e){
             return response()->json([
                 'code' => 401,
@@ -104,7 +104,7 @@ class SensorController extends Controller
     public function edit(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'name' => ['string'], 
+            'name' => ['string'],
             'organization_id' => ['integer'],
             'protected_subnet' => ['string'],
             'external_subnet' => ['string'],
@@ -187,6 +187,32 @@ class SensorController extends Controller
         }
     }
 
+    public function getSensorCounts($id)
+    {
+        $activeStatus = 'active';
+
+        $activeSensorCount = DB::table('sensors')
+            ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+            ->select(DB::raw('count(*) as count'))
+            ->where('organizations.id', $id)
+            ->where('sensors.status', $activeStatus)
+            ->first();
+
+        $nonActiveSensorCount = DB::table('sensors')
+            ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+            ->select(DB::raw('count(*) as count'))
+            ->where('organizations.id', $id)
+            ->where('sensors.status', '!=', $activeStatus)
+            ->first();
+
+        $sensorCounts = [
+            'active' => $activeSensorCount->count ?? 0,
+            'nonActive' => $nonActiveSensorCount->count ?? 0
+        ];
+
+        return response()->json($sensorCounts);
+    }
+
          /**
      * Get the token array structure.
      *
@@ -209,7 +235,7 @@ class SensorController extends Controller
         $newToken = JWTAuth::refresh($token, true);
         return response()->json([
             'code' => 200,
-            'access_token' => $newToken 
+            'access_token' => $newToken
         ], 200);
     }
 }
