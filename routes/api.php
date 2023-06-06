@@ -31,3 +31,4 @@ Route::prefix('sensors')->group(function () {
 
 
 Route::get('test/{id}',[SensorController::class, 'getSensorCounts']);
+Route::get('log/{id}',[SensorHeartbeatController::class, 'getLog']);

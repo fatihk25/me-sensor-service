@@ -19,7 +19,11 @@ class SensorController extends Controller
 
     public function detail($id) {
         try {
-            $data = Sensor::where('id', $id)->first();
+            $data = DB::table('sensors')
+            ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+            ->select('sensors.*', 'organizations.id as organization_id', 'organizations.name as organization_name', 'organizations.oinkcode')
+            ->where('sensors.id', $id)
+            ->first();
             return response()->json([
                 'code ' => 201,
                 'message' => 'success',
