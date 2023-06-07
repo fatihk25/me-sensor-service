@@ -55,6 +55,7 @@ class SensorHeartbeatController extends Controller
             ->join('sensor_heartbeats', 'sensors.id', '=', 'sensor_heartbeats.sensor_id')
             ->select('sensors.id','sensors.uuid', 'sensors.name',  'sensor_heartbeats.isActive', 'sensor_heartbeats.last_seen', 'sensors.created_at')
             ->where('organizations.id', $id)
+            ->orderBy('last_seen', 'desc')
             ->get();
             return response()->json([
                 'code' => 201,

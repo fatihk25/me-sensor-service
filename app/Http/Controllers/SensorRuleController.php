@@ -33,6 +33,8 @@ class SensorRuleController extends Controller
             );
 
             $rulesFile->storeAs($folderPath, $filename, 'public');
+            $sensor->status = "rules uploaded";
+            $sensor->save();
 
             return response()->json([
                 'message' => 'Rules uploaded',
