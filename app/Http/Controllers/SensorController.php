@@ -191,22 +191,68 @@ class SensorController extends Controller
         }
     }
 
+    // public function getSensorCounts($id)
+    // {
+    //     $activeStatus = 'active';
+
+    //     $activeSensorCount = DB::table('sensors')
+    //         ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+    //         ->select(DB::raw('count(*) as count'))
+    //         ->where('organizations.id', $id)
+    //         ->where('sensors.status', $activeStatus)
+    //         ->first();
+
+    //     $nonActiveSensorCount = DB::table('sensors')
+    //         ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+    //         ->select(DB::raw('count(*) as count'))
+    //         ->where('organizations.id', $id)
+    //         ->where('sensors.status', '!=', $activeStatus)
+    //         ->first();
+
+    //     $sensorCounts = [
+    //         'active' => $activeSensorCount->count ?? 0,
+    //         'nonActive' => $nonActiveSensorCount->count ?? 0
+    //     ];
+
+    //     return response()->json($sensorCounts);
+    // }
+
+
     public function getSensorCounts($id)
     {
-        $activeStatus = 'active';
-
         $activeSensorCount = DB::table('sensors')
             ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+            ->leftJoin('sensor_heartbeats', function ($join) {
+                $join->on('sensors.id', '=', 'sensor_heartbeats.sensor_id')
+                    ->where('sensor_heartbeats.id', function ($query) {
+                        $query->select('id')
+                            ->from('sensor_heartbeats')
+                            ->whereColumn('sensor_heartbeats.sensor_id', 'sensors.id')
+                            ->latest('last_seen')
+                            ->limit(1);
+                    });
+            })
             ->select(DB::raw('count(*) as count'))
             ->where('organizations.id', $id)
-            ->where('sensors.status', $activeStatus)
+            ->where('sensor_heartbeats.isActive', true)
             ->first();
 
         $nonActiveSensorCount = DB::table('sensors')
             ->join('organizations', 'sensors.organization_id', '=', 'organizations.id')
+            ->leftJoin('sensor_heartbeats', function ($join) {
+                $join->on('sensors.id', '=', 'sensor_heartbeats.sensor_id')
+                    ->where('sensor_heartbeats.id', function ($query) {
+                        $query->select('id')
+                            ->from('sensor_heartbeats')
+                            ->whereColumn('sensor_heartbeats.sensor_id', 'sensors.id')
+                            ->latest('last_seen')
+                            ->limit(1);
+                    });
+            })
             ->select(DB::raw('count(*) as count'))
             ->where('organizations.id', $id)
-            ->where('sensors.status', '!=', $activeStatus)
+            ->where('sensor_heartbeats.isActive', false)
+            ->orWhereNull('sensor_heartbeats.isActive')
             ->first();
 
         $sensorCounts = [
@@ -216,6 +262,7 @@ class SensorController extends Controller
 
         return response()->json($sensorCounts);
     }
+
 
          /**
      * Get the token array structure.

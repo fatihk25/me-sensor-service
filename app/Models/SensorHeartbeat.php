@@ -11,7 +11,8 @@ class SensorHeartbeat extends Model
 
     protected $fillable = [
         'sensor_id',
-        'last_seen'
+        'last_seen',
+        'isActive'
     ];
 
     public function sensor()
