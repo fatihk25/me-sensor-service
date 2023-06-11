@@ -234,6 +234,7 @@ class SensorController extends Controller
             })
             ->select(DB::raw('count(*) as count'))
             ->where('organizations.id', $id)
+            ->where('sensors.status', '!=', 'deleted')
             ->where('sensor_heartbeats.isActive', true)
             ->first();
 
@@ -251,6 +252,7 @@ class SensorController extends Controller
             })
             ->select(DB::raw('count(*) as count'))
             ->where('organizations.id', $id)
+            ->where('sensors.status', '!=', 'deleted')
             ->where('sensor_heartbeats.isActive', false)
             ->orWhereNull('sensor_heartbeats.isActive')
             ->first();
