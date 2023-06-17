@@ -254,8 +254,9 @@ class SensorController extends Controller
             ->where('organizations.id', $id)
             ->where('sensors.status', '!=', 'deleted')
             ->where('sensor_heartbeats.isActive', false)
-            ->orWhereNull('sensor_heartbeats.isActive')
+            // ->orWhereNull('sensor_heartbeats.isActive')
             ->first();
+            // dd($nonActiveSensorCount);
 
         $sensorCounts = [
             'active' => $activeSensorCount->count ?? 0,
